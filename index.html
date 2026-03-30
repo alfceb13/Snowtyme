@@ -405,6 +405,9 @@ function save(){ sync('saving','Guardando...'); if(saveTO)clearTimeout(saveTO); 
 // LISTEN
 onSnapshot(ref, snap=>{
   if(snap.exists()){ S=snap.data(); } else { setDoc(ref,DEF); S=JSON.parse(JSON.stringify(DEF)); }
+  const active=document.activeElement;
+  const isTyping=active&&(active.tagName==='INPUT'||active.tagName==='TEXTAREA'||active.tagName==='SELECT');
+  if(!first&&isTyping){ sync('ok','✓ Sincronizado'); return; }
   renderAll();
   if(first){ document.getElementById('loader').style.display='none'; first=false; sync('ok','✓ Conectado con el grupo'); }
   else { sync('ok','✓ Actualizado'); }
