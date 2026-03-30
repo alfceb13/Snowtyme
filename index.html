@@ -268,7 +268,7 @@ select.isel{border:1.5px solid rgba(30,60,120,.18);border-radius:9px;padding:8px
       </div>
       <div style="margin-top:18px;">
         <div class="ctitle" style="font-size:1.1rem;">📝 Notas del viaje</div>
-        <textarea class="notes-area" id="notesArea" placeholder="Escribe aquí info del viaje: hotel, hora de salida, punto de encuentro, teléfonos de emergencia..." oninput="saveNotes(this.value)"></textarea>
+        <textarea class="notes-area" id="notesArea" placeholder="Escribe aquí info del viaje: hotel, hora de salida, punto de encuentro, teléfonos de emergencia..." onchange="saveNotes(this.value)"></textarea>
         <div class="notes-hint">Los cambios se guardan automáticamente y se sincronizan con el grupo.</div>
       </div>
     </div>
@@ -432,7 +432,7 @@ function renderNames(){
   for(let i=0;i<S.people;i++){
     const v=arr[i]||('Persona '+(i+1));
     const d=document.createElement('div'); d.className='name-field';
-    d.innerHTML=`<label>Persona ${i+1}</label><input class="name-input" type="text" value="${esc(v)}" placeholder="Nombre..." maxlength="16" oninput="window.UPN(${i},this.value)">`;
+    d.innerHTML=`<label>Persona ${i+1}</label><input class="name-input" type="text" value="${esc(v)}" placeholder="Nombre..." maxlength="16" onchange="window.UPN(${i},this.value)">`;
     g.appendChild(d);
   }
 }
@@ -457,7 +457,7 @@ function renderFood(){
     const d=document.createElement('div'); d.className='food-item';
     d.innerHTML=`
       <div class="food-row1">
-        <input type="text" value="${esc(item.name)}" placeholder="Nombre del item..." oninput="window.UF(${item.id},'name',this.value)">
+        <input type="text" value="${esc(item.name)}" placeholder="Nombre del item..." onchange="window.UF(${item.id},'name',this.value)">
         <button class="bdel" onclick="window.DF(${item.id})">×</button>
       </div>
       <div class="food-row2">
@@ -467,7 +467,7 @@ function renderFood(){
           <option value="equipo" ${item.cat==='equipo'?'selected':''}>🎿 Equipo</option>
           <option value="otro" ${item.cat==='otro'?'selected':''}>📦 Otro</option>
         </select>
-        <div class="price-box"><span>${S.currency||'€'}</span><input type="number" value="${item.price}" min="0" step="0.5" placeholder="0" oninput="window.UF(${item.id},'price',parseFloat(this.value)||0)"></div>
+        <div class="price-box"><span>${S.currency||'€'}</span><input type="number" value="${item.price}" min="0" step="0.5" placeholder="0" onchange="window.UF(${item.id},'price',parseFloat(this.value)||0)"></div>
       </div>`;
     el.appendChild(d);
   });
@@ -502,7 +502,7 @@ function renderTasks(){
     d.innerHTML=`
       <div class="task-row1">
         <input type="checkbox" class="task-check" ${t.done?'checked':''} onchange="window.TT(${t.id},this.checked)">
-        <input type="text" class="task-inp${t.done?' done':''}" value="${esc(t.text)}" placeholder="Descripción de la tarea..." oninput="window.UT(${t.id},'text',this.value)">
+        <input type="text" class="task-inp${t.done?' done':''}" value="${esc(t.text)}" placeholder="Descripción de la tarea..." onchange="window.UT(${t.id},'text',this.value)">
         <button class="bdel" onclick="window.DT(${t.id})">×</button>
       </div>
       <div class="task-row2">
@@ -511,7 +511,7 @@ function renderTasks(){
       <div class="task-cost-row">
         <div class="cost-field">
           <label>💸 Gasto</label>
-          <div class="price-box"><span>${S.currency||'€'}</span><input type="number" value="${t.cost||0}" min="0" step="0.5" placeholder="0" oninput="window.UT(${t.id},'cost',parseFloat(this.value)||0)"></div>
+          <div class="price-box"><span>${S.currency||'€'}</span><input type="number" value="${t.cost||0}" min="0" step="0.5" placeholder="0" onchange="window.UT(${t.id},'cost',parseFloat(this.value)||0)"></div>
         </div>
         <div class="cost-field">
           <label>👤 Pagó</label>
@@ -547,12 +547,12 @@ function renderMkt(){
     d.innerHTML=`
       <div class="mkt-row1">
         <input type="checkbox" class="mkt-check" ${item.done?'checked':''} onchange="window.TM(${item.id},this.checked)">
-        <input type="text" class="${item.done?'mkt-bought':''}" value="${esc(item.name)}" placeholder="Producto..." oninput="window.UM(${item.id},'name',this.value)">
+        <input type="text" class="${item.done?'mkt-bought':''}" value="${esc(item.name)}" placeholder="Producto..." onchange="window.UM(${item.id},'name',this.value)">
         <button class="bdel" onclick="window.DM(${item.id})">×</button>
       </div>
       <div class="mkt-row2">
-        <input type="text" value="${esc(item.qty)}" placeholder="Cantidad (ej: 2 botes)" oninput="window.UM(${item.id},'qty',this.value)">
-        <div class="price-box"><span>${S.currency||'€'}</span><input type="number" value="${item.price}" min="0" step="0.5" placeholder="0" oninput="window.UM(${item.id},'price',parseFloat(this.value)||0)"></div>
+        <input type="text" value="${esc(item.qty)}" placeholder="Cantidad (ej: 2 botes)" onchange="window.UM(${item.id},'qty',this.value)">
+        <div class="price-box"><span>${S.currency||'€'}</span><input type="number" value="${item.price}" min="0" step="0.5" placeholder="0" onchange="window.UM(${item.id},'price',parseFloat(this.value)||0)"></div>
       </div>`;
     el.appendChild(d);
   });
