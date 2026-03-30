@@ -400,16 +400,28 @@ let first = true;
 
 // SYNC UI
 function sync(st,txt){ const b=document.getElementById('sync'),d=b.querySelector('.sdot'); b.className='sync '+st; d.className='sdot'+(st==='saving'?' pulse':''); document.getElementById('syncTxt').textContent=txt; }
-function save(){ sync('saving','Guardando...'); if(saveTO)clearTimeout(saveTO); saveTO=setTimeout(async()=>{ try{await setDoc(ref,S);sync('ok','✓ Sincronizado');}catch(e){sync('err','✗ Error al guardar');} },700); }
+function save(){ sync('saving','Guardando...'); if(saveTO)clearTimeout(saveTO); saveTO=setTimeout(async()=>{ try{await setDoc(ref,S,{merge:true});sync('ok','✓ Sincronizado');}catch(e){sync('err','✗ Error al guardar');} },700); }
 
 // LISTEN
 onSnapshot(ref, snap=>{
-  if(snap.exists()){ S=snap.data(); } else { setDoc(ref,DEF); S=JSON.parse(JSON.stringify(DEF)); }
+  if(snap.exists()){
+    const remote = snap.data();
+    // Only merge fields that don't exist locally — never overwrite user data
+    S = remote;
+  }
+  // If doc doesn't exist yet, create it ONLY with structure, no defaults
+  // so we never reset real data
   const active=document.activeElement;
   const isTyping=active&&(active.tagName==='INPUT'||active.tagName==='TEXTAREA'||active.tagName==='SELECT');
   if(!first&&isTyping){ sync('ok','✓ Sincronizado'); return; }
   renderAll();
-  if(first){ document.getElementById('loader').style.display='none'; first=false; sync('ok','✓ Conectado con el grupo'); }
+  if(first){
+    document.getElementById('loader').style.display='none';
+    first=false;
+    // Only write defaults if document truly does not exist
+    if(!snap.exists()){ setDoc(ref, DEF); S=JSON.parse(JSON.stringify(DEF)); }
+    sync('ok','✓ Conectado con el grupo');
+  }
   else { sync('ok','✓ Actualizado'); }
 }, err=>{ sync('err','✗ Sin conexión'); document.getElementById('loader').style.display='none'; });
 
