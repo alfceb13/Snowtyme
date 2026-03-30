@@ -1,0 +1,566 @@
+<!DOCTYPE html>  
+  
+<html lang="es">  
+<head>  
+<meta charset="UTF-8">  
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">  
+<title>❄️ Snow Trip</title>  
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">  
+<style>  
+:root {  
+  --bd: #0f1d3a;  
+  --bm: #1a3568;  
+  --bl: #2d5aa8;  
+  --ac: #7ec8f7;  
+  --ac2: #c4e8ff;  
+  --tx: #1a2a4a;  
+  --mu: #6a8ab8;  
+  --wh: #fff;  
+  --rd: #e05c5c;  
+  --gn: #4caf7d;  
+  --yw: #f5c842;  
+  --card: rgba(255,255,255,0.93);  
+  --sh: 0 4px 20px rgba(20,50,110,0.13);  
+  --radius: 16px;  
+}  
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}  
+html{font-size:16px;}  
+body{font-family:'DM Sans',sans-serif;background:linear-gradient(160deg,#0a1628 0%,#152d5e 50%,#1e4a8a 100%);min-height:100vh;min-height:-webkit-fill-available;color:var(--tx);overflow-x:hidden;}  
+  
+/* SNOW */  
+.flakes{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden;}  
+.flake{position:absolute;top:-20px;color:rgba(255,255,255,0.55);animation:fall linear infinite;}  
+@keyframes fall{0%{transform:translateY(-20px) rotate(0);opacity:.9}100%{transform:translateY(105vh) rotate(400deg);opacity:.1}}  
+  
+/* SYNC BAR */  
+.sync{position:fixed;top:0;left:0;right:0;z-index:300;display:flex;align-items:center;justify-content:center;gap:7px;padding:9px 16px;font-size:0.7rem;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;transition:background .4s,color .4s;}  
+.sync.ok{background:rgba(76,175,125,0.9);color:#fff;}  
+.sync.saving{background:rgba(245,200,66,0.95);color:#2a2000;}  
+.sync.err{background:rgba(224,92,92,0.9);color:#fff;}  
+.sdot{width:7px;height:7px;border-radius:50%;background:currentColor;}  
+.sdot.pulse{animation:p 1s infinite;}  
+@keyframes p{0%,100%{opacity:1}50%{opacity:.2}}  
+  
+/* LOADING */  
+.loader{position:fixed;inset:0;background:rgba(10,22,40,0.95);z-index:400;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;}  
+.loader h2{font-family:‘Bebas Neue’,sans-serif;font-size:2rem;letter-spacing:3px;color:var(–ac2);}  
+.loader p{color:var(–ac);font-size:0.8rem;opacity:.8;}  
+.spin{width:38px;height:38px;border:3px solid rgba(200,235,255,0.2);border-top-color:var(–ac);border-radius:50%;animation:sp .8s linear infinite;}  
+@keyframes sp{to{transform:rotate(360deg)}}  
+  
+/* LAYOUT */  
+.wrap{max-width:600px;margin:0 auto;padding:46px 14px 80px;position:relative;z-index:1;}  
+  
+/* HEADER */  
+.hdr{text-align:center;margin-bottom:22px;padding-top:4px;}  
+.hdr h1{font-family:‘Bebas Neue’,sans-serif;font-size:clamp(2.6rem,12vw,4.5rem);color:#fff;letter-spacing:5px;line-height:1;text-shadow:0 3px 20px rgba(100,180,255,.5);}  
+.hdr h1 em{color:var(–ac2);font-style:normal;}  
+.hdr p{color:var(–ac);font-size:0.75rem;margin-top:5px;letter-spacing:2px;text-transform:uppercase;}  
+  
+/* GLASS CARD */  
+.glass{background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);border-radius:var(–radius);padding:14px 16px;backdrop-filter:blur(12px);}  
+  
+/* PEOPLE SECTION */  
+.people-wrap{margin-bottom:16px;}  
+.people-top{display:flex;align-items:center;gap:10px;margin-bottom:12px;}  
+.people-top label{color:#fff;font-weight:600;font-size:0.8rem;letter-spacing:1px;text-transform:uppercase;flex:1;}  
+.pcnt{display:flex;align-items:center;gap:10px;}  
+.pcnt button{width:32px;height:32px;border-radius:50%;border:2px solid var(–ac);background:transparent;color:var(–ac);font-size:1.1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;font-weight:bold;}  
+.pcnt button:active{transform:scale(.9);}  
+.pcnt button:hover{background:var(–ac);color:var(–bd);}  
+.pcnt span{color:#fff;font-family:‘Bebas Neue’,sans-serif;font-size:1.8rem;min-width:28px;text-align:center;}  
+.names-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px;}  
+.name-field{display:flex;flex-direction:column;gap:4px;}  
+.name-field label{font-size:0.68rem;color:var(–ac);text-transform:uppercase;letter-spacing:.8px;font-weight:600;}  
+.name-input{border:1.5px solid rgba(255,255,255,0.25);border-radius:9px;padding:8px 10px;font-family:‘DM Sans’,sans-serif;font-size:0.85rem;color:#fff;background:rgba(255,255,255,0.1);width:100%;transition:border-color .2s;}  
+.name-input::placeholder{color:rgba(255,255,255,0.4);}  
+.name-input:focus{outline:none;border-color:var(–ac);background:rgba(255,255,255,0.15);}  
+  
+/* CURRENCY */  
+.curr-row{display:flex;align-items:center;gap:8px;margin-top:10px;}  
+.curr-row label{color:var(–ac);font-size:0.72rem;text-transform:uppercase;letter-spacing:.8px;font-weight:600;}  
+.curr-select{border:1.5px solid rgba(255,255,255,0.25);border-radius:8px;padding:6px 10px;font-family:‘DM Sans’,sans-serif;font-size:0.82rem;color:#fff;background:rgba(255,255,255,0.1);cursor:pointer;}  
+.curr-select option{color:var(–tx);background:#fff;}  
+  
+/* TABS */  
+.tabs{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:14px;}  
+.tab{padding:10px 4px;border:1.5px solid rgba(255,255,255,0.18);border-radius:12px;background:rgba(255,255,255,0.07);color:rgba(255,255,255,0.65);font-family:‘DM Sans’,sans-serif;font-size:0.72rem;font-weight:700;cursor:pointer;transition:all .2s;text-transform:uppercase;letter-spacing:.5px;text-align:center;line-height:1.3;}  
+.tab:active{transform:scale(.97);}  
+.tab.on{background:#fff;color:var(–bd);border-color:#fff;box-shadow:0 3px 14px rgba(100,180,255,.25);}  
+  
+/* PANEL */  
+.panel{display:none;}.panel.on{display:block;}  
+  
+/* CARD */  
+.card{background:var(–card);border-radius:var(–radius);padding:18px 16px;box-shadow:var(–sh);border:1px solid rgba(255,255,255,.7);}  
+.ctitle{font-family:‘Bebas Neue’,sans-serif;font-size:1.35rem;color:var(–tx);letter-spacing:2px;margin-bottom:14px;display:flex;align-items:center;gap:8px;}  
+  
+/* STATS */  
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-bottom:16px;}  
+.stat{background:linear-gradient(135deg,var(–bd),var(–bm));border-radius:11px;padding:11px 8px;text-align:center;}  
+.stat .v{font-family:‘Bebas Neue’,sans-serif;font-size:1.35rem;color:var(–ac2);line-height:1;}  
+.stat .l{font-size:0.65rem;text-transform:uppercase;letter-spacing:.8px;opacity:.75;color:#fff;margin-top:3px;}  
+  
+/* TOTAL RESUMEN */  
+.total-card{background:linear-gradient(135deg,var(–bd),var(–bl));border-radius:var(–radius);padding:16px;margin-bottom:14px;border:1px solid rgba(100,180,255,.2);}  
+.total-card .tc-title{font-family:‘Bebas Neue’,sans-serif;font-size:1rem;color:var(–ac2);letter-spacing:2px;margin-bottom:10px;}  
+.total-card .tc-row{display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.08);}  
+.total-card .tc-row:last-child{border-bottom:none;padding-top:10px;margin-top:4px;}  
+.total-card .tc-row.big .tl{color:#fff;font-weight:700;}  
+.total-card .tc-row.big .tr{color:var(–ac2);font-family:‘Bebas Neue’,sans-serif;font-size:1.5rem;}  
+.total-card .tl{color:rgba(255,255,255,.7);font-size:.82rem;}  
+.total-card .tr{color:var(–ac);font-weight:600;font-size:.9rem;}  
+  
+/* LIST ITEMS */  
+input[type=text],input[type=number]{border:1.5px solid rgba(30,60,120,.18);border-radius:9px;padding:9px 10px;font-family:‘DM Sans’,sans-serif;font-size:0.9rem;color:var(–tx);background:rgba(255,255,255,.85);width:100%;transition:border-color .2s,box-shadow .2s;-webkit-appearance:none;}  
+input:focus{outline:none;border-color:var(–bl);box-shadow:0 0 0 3px rgba(45,90,168,.12);}  
+input[type=number]{text-align:right;-moz-appearance:textfield;}  
+input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none;}  
+select.isel{border:1.5px solid rgba(30,60,120,.18);border-radius:9px;padding:8px 9px;font-family:‘DM Sans’,sans-serif;font-size:0.82rem;color:var(–tx);background:rgba(255,255,255,.85);cursor:pointer;-webkit-appearance:none;appearance:none;background-image:url(“data:image/svg+xml,%3Csvg xmlns=‘http://www.w3.org/2000/svg’ width=‘10’ height=‘6’%3E%3Cpath d=‘M0 0l5 6 5-6z’ fill=’%236a8ab8’/%3E%3C/svg%3E”);background-repeat:no-repeat;background-position:right 8px center;padding-right:24px;}  
+  
+.bdel{width:32px;height:32px;border-radius:50%;border:none;background:rgba(224,92,92,.12);color:var(–rd);font-size:1.1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;flex-shrink:0;}  
+.bdel:active{transform:scale(.9);}  
+.bdel:hover{background:var(–rd);color:#fff;}  
+.badd{margin-top:12px;padding:12px;border-radius:12px;border:2px dashed rgba(45,90,168,.4);background:transparent;color:var(–mu);font-family:‘DM Sans’,sans-serif;font-size:0.88rem;font-weight:600;cursor:pointer;width:100%;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:6px;}  
+.badd:active{transform:scale(.98);}  
+.badd:hover{background:var(–bl);color:#fff;border-style:solid;border-color:var(–bl);}  
+  
+/* FOOD ITEMS */  
+.food-item{padding:12px 0;border-bottom:1px solid rgba(30,60,120,.09);animation:si .25s ease;}  
+.food-item:last-child{border-bottom:none;}  
+.food-row1{display:grid;grid-template-columns:1fr 32px;gap:8px;margin-bottom:7px;}  
+.food-row2{display:grid;grid-template-columns:1fr auto auto;gap:8px;align-items:center;}  
+.price-box{display:flex;align-items:center;gap:4px;}  
+.price-box span{font-size:.82rem;color:var(–mu);font-weight:600;white-space:nowrap;}  
+.price-box input{width:70px;}  
+@keyframes si{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}  
+  
+/* TASK ITEMS */  
+.task-item{padding:12px 0;border-bottom:1px solid rgba(30,60,120,.09);animation:si .25s ease;}  
+.task-item:last-child{border-bottom:none;}  
+.task-row1{display:grid;grid-template-columns:28px 1fr 32px;gap:8px;align-items:center;margin-bottom:6px;}  
+.task-row2{display:flex;gap:8px;padding-left:36px;}  
+.task-check{width:22px;height:22px;accent-color:var(–bl);cursor:pointer;flex-shrink:0;}  
+.task-inp{font-size:.9rem!important;}  
+.task-inp.done{text-decoration:line-through;color:var(–mu);}  
+.tag-sel{flex:1;}  
+  
+/* MARKET ITEMS */  
+.mkt-item{padding:12px 0;border-bottom:1px solid rgba(30,60,120,.09);animation:si .25s ease;}  
+.mkt-item:last-child{border-bottom:none;}  
+.mkt-row1{display:grid;grid-template-columns:28px 1fr 32px;gap:8px;align-items:center;margin-bottom:6px;}  
+.mkt-row2{display:grid;grid-template-columns:1fr auto;gap:8px;padding-left:36px;}  
+.mkt-check{width:22px;height:22px;accent-color:var(–gn);cursor:pointer;}  
+.mkt-bought{text-decoration:line-through;color:var(–mu);}  
+  
+/* SPLIT */  
+.split{margin-top:18px;background:linear-gradient(135deg,rgba(26,53,104,.06),rgba(45,90,168,.1));border-radius:13px;padding:15px;border:1px solid rgba(45,90,168,.18);}  
+.split-t{font-family:‘Bebas Neue’,sans-serif;font-size:.95rem;color:var(–tx);letter-spacing:2px;margin-bottom:11px;}  
+.split-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:7px;}  
+.split-p{background:#fff;border-radius:10px;padding:10px 8px;text-align:center;box-shadow:0 2px 7px rgba(30,60,120,.08);}  
+.split-p .sn{font-size:.68rem;color:var(–mu);text-transform:uppercase;letter-spacing:.7px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}  
+.split-p .sa{font-family:‘Bebas Neue’,sans-serif;font-size:1.3rem;color:var(–bl);line-height:1.2;}  
+  
+/* PROGRESS */  
+.prog-wrap{height:5px;background:rgba(74,120,196,.15);border-radius:6px;margin-top:8px;overflow:hidden;}  
+.prog-bar{height:100%;background:linear-gradient(90deg,var(–bl),var(–ac));border-radius:6px;transition:width .4s ease;}  
+.prog-lbl{font-size:.72rem;color:var(–mu);margin-top:4px;text-align:right;}  
+  
+/* NOTES */  
+.notes-area{width:100%;min-height:140px;border:1.5px solid rgba(30,60,120,.18);border-radius:12px;padding:12px 14px;font-family:‘DM Sans’,sans-serif;font-size:.9rem;color:var(–tx);background:rgba(255,255,255,.85);resize:vertical;transition:border-color .2s;}  
+.notes-area:focus{outline:none;border-color:var(–bl);box-shadow:0 0 0 3px rgba(45,90,168,.12);}  
+.notes-hint{font-size:.72rem;color:var(–mu);margin-top:6px;}  
+  
+/* BOTTOM NAV (mobile) */  
+@media(max-width:540px){  
+.tabs{display:none;}  
+.bnav{display:flex!important;}  
+}  
+.bnav{display:none;position:fixed;bottom:0;left:0;right:0;z-index:200;background:rgba(12,25,55,0.97);border-top:1px solid rgba(255,255,255,.1);backdrop-filter:blur(14px);padding:6px 8px calc(6px + env(safe-area-inset-bottom));}  
+.bnav button{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:8px 4px;border:none;background:transparent;color:rgba(255,255,255,.5);font-family:‘DM Sans’,sans-serif;font-size:.6rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px;cursor:pointer;transition:color .2s;border-radius:10px;}  
+.bnav button .ico{font-size:1.3rem;line-height:1;}  
+.bnav button.on{color:var(–ac2);background:rgba(255,255,255,.07);}  
+  
+/* MOBILE WRAP */  
+@media(max-width:540px){  
+.wrap{padding:44px 12px 90px;}  
+.stats{grid-template-columns:repeat(3,1fr);}  
+.food-row2{grid-template-columns:1fr auto auto;}  
+}  
+</style>  
+  
+</head>  
+<body>  
+  
+<div class="loader" id="loader">  
+  <div class="spin"></div>  
+  <h2>❄️ Cargando...</h2>  
+  <p>Sincronizando con el grupo</p>  
+</div>  
+  
+<div class="sync saving" id="sync">  
+  <div class="sdot pulse"></div>  
+  <span id="syncTxt">Conectando...</span>  
+</div>  
+  
+<div class="flakes" id="flakes"></div>  
+  
+<div class="wrap">  
+  <div class="hdr">  
+    <h1>❄️ SNOW <em>TRIP</em></h1>  
+    <p>Planificador del grupo · tiempo real</p>  
+  </div>  
+  
+  <!-- PERSONAS -->  
+  
+  <div class="glass people-wrap">  
+    <div class="people-top">  
+      <label>👥 Personas</label>  
+      <div class="curr-row" style="margin-top:0;">  
+        <label>Moneda</label>  
+        <select class="curr-select" id="currSel" onchange="setCurr(this.value)">  
+          <option value="€">€ Euro</option>  
+          <option value="$">$ Dólar</option>  
+          <option value="£">£ Libra</option>  
+          <option value="CHF">CHF Franco</option>  
+        </select>  
+      </div>  
+      <div class="pcnt">  
+        <button onclick="chPpl(-1)">−</button>  
+        <span id="pplN">5</span>  
+        <button onclick="chPpl(1)">+</button>  
+      </div>  
+    </div>  
+    <div class="names-grid" id="namesGrid"></div>  
+  </div>  
+  
+  <!-- TABS desktop -->  
+  
+  <div class="tabs">  
+    <button class="tab on" onclick="goTab('resumen',this)">📊 Resumen</button>  
+    <button class="tab" onclick="goTab('comida',this)">🍲 Comida</button>  
+    <button class="tab" onclick="goTab('tareas',this)">✅ Tareas</button>  
+    <button class="tab" onclick="goTab('mercado',this)">🛒 Mercado</button>  
+  </div>  
+  
+  <!-- RESUMEN -->  
+  
+  <div class="panel on" id="panel-resumen">  
+    <div class="card">  
+      <div class="ctitle">📊 Resumen del Viaje</div>  
+      <div class="total-card" id="totalCard">  
+        <div class="tc-title">💰 Gastos totales</div>  
+        <div class="tc-row"><span class="tl">🍲 Comida</span><span class="tr" id="r-comida">—</span></div>  
+        <div class="tc-row"><span class="tl">🛒 Mercado</span><span class="tr" id="r-mercado">—</span></div>  
+        <div class="tc-row big"><span class="tl">TOTAL</span><span class="tr" id="r-total">—</span></div>  
+      </div>  
+      <div class="split" id="resumen-split">  
+        <div class="split-t">💳 Cada persona paga</div>  
+        <div class="split-grid" id="resumen-split-grid"></div>  
+      </div>  
+      <div style="margin-top:18px;">  
+        <div class="ctitle" style="font-size:1.1rem;">📝 Notas del viaje</div>  
+        <textarea class="notes-area" id="notesArea" placeholder="Escribe aquí info del viaje: hotel, hora de salida, punto de encuentro, teléfonos de emergencia..." oninput="saveNotes(this.value)"></textarea>  
+        <div class="notes-hint">Los cambios se guardan automáticamente y se sincronizan con el grupo.</div>  
+      </div>  
+    </div>  
+  </div>  
+  
+  <!-- COMIDA -->  
+  
+  <div class="panel" id="panel-comida">  
+    <div class="card">  
+      <div class="ctitle">🍲 Comida & Bebida</div>  
+      <div class="stats">  
+        <div class="stat"><div class="v" id="fc-total">—</div><div class="l">Total</div></div>  
+        <div class="stat"><div class="v" id="fc-pp">—</div><div class="l">Persona</div></div>  
+        <div class="stat"><div class="v" id="fc-n">0</div><div class="l">Items</div></div>  
+      </div>  
+      <div id="foodList"></div>  
+      <button class="badd" onclick="addFood()">＋ Añadir item</button>  
+      <div class="split">  
+        <div class="split-t">💰 División</div>  
+        <div class="split-grid" id="food-split-grid"></div>  
+      </div>  
+    </div>  
+  </div>  
+  
+  <!-- TAREAS -->  
+  
+  <div class="panel" id="panel-tareas">  
+    <div class="card">  
+      <div class="ctitle">✅ Cosas Pendientes</div>  
+      <div class="stats" style="grid-template-columns:1fr 1fr;">  
+        <div class="stat"><div class="v" id="tk-done">0</div><div class="l">Listas</div></div>  
+        <div class="stat"><div class="v" id="tk-total">0</div><div class="l">Total</div></div>  
+      </div>  
+      <div class="prog-wrap"><div class="prog-bar" id="tk-bar" style="width:0%"></div></div>  
+      <div class="prog-lbl" id="tk-lbl">0% completado</div>  
+      <br>  
+      <div id="taskList"></div>  
+      <button class="badd" onclick="addTask()">＋ Añadir tarea</button>  
+    </div>  
+  </div>  
+  
+  <!-- MERCADO -->  
+  
+  <div class="panel" id="panel-mercado">  
+    <div class="card">  
+      <div class="ctitle">🛒 Lista del Mercado</div>  
+      <div class="stats">  
+        <div class="stat"><div class="v" id="mk-total">—</div><div class="l">Total</div></div>  
+        <div class="stat"><div class="v" id="mk-pp">—</div><div class="l">Persona</div></div>  
+        <div class="stat"><div class="v" id="mk-done">0/0</div><div class="l">Comprado</div></div>  
+      </div>  
+      <div id="mktList"></div>  
+      <button class="badd" onclick="addMkt()">＋ Añadir producto</button>  
+      <div class="split">  
+        <div class="split-t">💰 División</div>  
+        <div class="split-grid" id="mkt-split-grid"></div>  
+      </div>  
+    </div>  
+  </div>  
+</div>  
+  
+<!-- BOTTOM NAV mobile -->  
+  
+<nav class="bnav" id="bnav">  
+  <button class="on" onclick="goTabM('resumen',this)"><span class="ico">📊</span>Resumen</button>  
+  <button onclick="goTabM('comida',this)"><span class="ico">🍲</span>Comida</button>  
+  <button onclick="goTabM('tareas',this)"><span class="ico">✅</span>Tareas</button>  
+  <button onclick="goTabM('mercado',this)"><span class="ico">🛒</span>Mercado</button>  
+</nav>  
+  
+<script type="module">  
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";  
+import { getFirestore, doc, onSnapshot, setDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";  
+  
+const app = initializeApp({  
+  apiKey:"AIzaSyCVcKxLKQG-nv63fZRtbV1bjbrQ-g46EEs",  
+  authDomain:"snow-trip-2026.firebaseapp.com",  
+  projectId:"snow-trip-2026",  
+  storageBucket:"snow-trip-2026.firebasestorage.app",  
+  messagingSenderId:"250774928391",  
+  appId:"1:250774928391:web:83a2bc0c2e6f514f46bea2"  
+});  
+const db = getFirestore(app);  
+const ref = doc(db,"snowtrip","data");  
+  
+const DEF = {  
+  people:5,  
+  currency:'€',  
+  personNames:['Ana','Carlos','María','Javi','Laura'],  
+  notes:'',  
+  nFI:10,nTI:10,nMI:10,  
+  food:[  
+    {id:1,name:'Bocadillos',price:25,cat:'comida'},  
+    {id:2,name:'Fruta y snacks',price:15,cat:'comida'},  
+    {id:3,name:'Agua y refrescos',price:20,cat:'bebida'},  
+    {id:4,name:'Café / Thermos',price:12,cat:'bebida'},  
+    {id:5,name:'Chocolate caliente',price:10,cat:'comida'},  
+  ],  
+  tasks:[  
+    {id:1,text:'Reservar alojamiento',done:false,who:'Todos'},  
+    {id:2,text:'Confirmar hora de salida',done:false,who:'Todos'},  
+    {id:3,text:'Comprobar estado nieve',done:false,who:'Ana'},  
+    {id:4,text:'Llevar botiquín',done:false,who:'Carlos'},  
+    {id:5,text:'Alquilar equipos de snow',done:false,who:'Todos'},  
+    {id:6,text:'Cargar gasolina',done:false,who:'Javi'},  
+    {id:7,text:'Lista del mercado',done:true,who:'María'},  
+  ],  
+  mkt:[  
+    {id:1,name:'Pan de molde',qty:'2 paq.',price:4,done:false},  
+    {id:2,name:'Embutidos',qty:'500g',price:8,done:false},  
+    {id:3,name:'Queso',qty:'300g',price:6,done:false},  
+    {id:4,name:'Fruta variada',qty:'2kg',price:7,done:false},  
+    {id:5,name:'Agua mineral',qty:'12 bot.',price:5,done:true},  
+    {id:6,name:'Chocolate negro',qty:'4 tabl.',price:6,done:false},  
+    {id:7,name:'Galletas / barritas',qty:'3 paq.',price:5,done:false},  
+    {id:8,name:'Bebidas calientes',qty:'2 cajas',price:4,done:false},  
+    {id:9,name:'Servilletas',qty:'1 pack',price:3,done:false},  
+  ]  
+};  
+  
+let S = JSON.parse(JSON.stringify(DEF));  
+let saveTO = null;  
+let first = true;  
+  
+// SYNC UI  
+function sync(st,txt){ const b=document.getElementById('sync'),d=b.querySelector('.sdot'); b.className='sync '+st; d.className='sdot'+(st==='saving'?' pulse':''); document.getElementById('syncTxt').textContent=txt; }  
+function save(){ sync('saving','Guardando...'); if(saveTO)clearTimeout(saveTO); saveTO=setTimeout(async()=>{ try{await setDoc(ref,S);sync('ok','✓ Sincronizado');}catch(e){sync('err','✗ Error al guardar');} },700); }  
+  
+// LISTEN  
+onSnapshot(ref, snap=>{  
+  if(snap.exists()){ S=snap.data(); } else { setDoc(ref,DEF); S=JSON.parse(JSON.stringify(DEF)); }  
+  renderAll();  
+  if(first){ document.getElementById('loader').style.display='none'; first=false; sync('ok','✓ Conectado con el grupo'); }  
+  else { sync('ok','✓ Actualizado'); }  
+}, err=>{ sync('err','✗ Sin conexión'); document.getElementById('loader').style.display='none'; });  
+  
+// HELPERS  
+const $ = id=>document.getElementById(id);  
+const esc = s=>(s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');  
+const fmt = v=>(S.currency||'€')+v.toFixed(0);  
+const fmtD = v=>(S.currency||'€')+v.toFixed(2);  
+function names(){ return (S.personNames||[]).slice(0,S.people); }  
+  
+// RENDER ALL  
+function renderAll(){  
+  renderNames(); renderFood(); renderTasks(); renderMkt(); renderResumen();  
+  const cs=$('currSel'); if(cs) cs.value=S.currency||'€';  
+  const na=$('notesArea'); if(na && document.activeElement!==na) na.value=S.notes||'';  
+}  
+  
+// NAMES  
+function renderNames(){  
+  const g=$('namesGrid'); g.innerHTML='';  
+  $('pplN').textContent=S.people;  
+  const arr=S.personNames||[];  
+  for(let i=0;i<S.people;i++){  
+    const v=arr[i]||('Persona '+(i+1));  
+    const d=document.createElement('div'); d.className='name-field';  
+    d.innerHTML=`<label>Persona ${i+1}</label><input class="name-input" type="text" value="${esc(v)}" placeholder="Nombre..." maxlength="16" oninput="window.UPN(${i},this.value)">`;  
+    g.appendChild(d);  
+  }  
+}  
+  
+window.UPN=(i,v)=>{ if(!S.personNames)S.personNames=[]; S.personNames[i]=v; save(); renderResumen(); renderFood(); renderMkt(); renderTasks(); };  
+window.chPpl=(d)=>{ S.people=Math.max(1,Math.min(10,S.people+d)); if(!S.personNames)S.personNames=[]; while(S.personNames.length<S.people)S.personNames.push('Persona '+(S.personNames.length+1)); save(); renderAll(); };  
+window.setCurr=(v)=>{ S.currency=v; save(); renderAll(); };  
+window.saveNotes=(v)=>{ S.notes=v; save(); };  
+  
+// SPLIT GRID helper  
+function splitGrid(containerId, pp){  
+  const g=$(containerId); g.innerHTML='';  
+  names().forEach(n=>{ const d=document.createElement('div'); d.className='split-p'; d.innerHTML=`<div class="sn">${esc(n)}</div><div class="sa">${fmtD(pp)}</div>`; g.appendChild(d); });  
+}  
+  
+// FOOD  
+function renderFood(){  
+  const el=$('foodList'); el.innerHTML='';  
+  let tot=0;  
+  (S.food||[]).forEach(item=>{  
+    tot+=item.price||0;  
+    const d=document.createElement('div'); d.className='food-item';  
+    d.innerHTML=`  
+      <div class="food-row1">  
+        <input type="text" value="${esc(item.name)}" placeholder="Nombre del item..." oninput="window.UF(${item.id},'name',this.value)">  
+        <button class="bdel" onclick="window.DF(${item.id})">×</button>  
+      </div>  
+      <div class="food-row2">  
+        <select class="isel" onchange="window.UF(${item.id},'cat',this.value)">  
+          <option value="comida" ${item.cat==='comida'?'selected':''}>🍲 Comida</option>  
+          <option value="bebida" ${item.cat==='bebida'?'selected':''}>🥤 Bebida</option>  
+          <option value="equipo" ${item.cat==='equipo'?'selected':''}>🎿 Equipo</option>  
+          <option value="otro" ${item.cat==='otro'?'selected':''}>📦 Otro</option>  
+        </select>  
+        <div class="price-box"><span>${S.currency||'€'}</span><input type="number" value="${item.price}" min="0" step="0.5" placeholder="0" oninput="window.UF(${item.id},'price',parseFloat(this.value)||0)"></div>  
+      </div>`;  
+    el.appendChild(d);  
+  });  
+  const pp=S.people>0?tot/S.people:0;  
+  $('fc-total').textContent=fmt(tot);  
+  $('fc-pp').textContent=fmtD(pp);  
+  $('fc-n').textContent=(S.food||[]).length;  
+  splitGrid('food-split-grid',pp);  
+  renderResumen();  
+}  
+window.UF=(id,f,v)=>{ const i=(S.food||[]).find(x=>x.id===id); if(i){i[f]=v;save();renderFood();} };  
+window.DF=(id)=>{ S.food=S.food.filter(x=>x.id!==id); save();renderFood(); };  
+window.addFood=()=>{ if(!S.food)S.food=[]; S.food.push({id:S.nFI++,name:'',price:0,cat:'comida'}); save();renderFood(); setTimeout(()=>{const e=$('foodList').querySelectorAll('input[type=text]');e[e.length-1]?.focus();},60); };  
+  
+// TASKS  
+function renderTasks(){  
+  const el=$('taskList'); el.innerHTML='';  
+  const ts=S.tasks||[];  
+  const done=ts.filter(t=>t.done).length;  
+  $('tk-done').textContent=done;  
+  $('tk-total').textContent=ts.length;  
+  const pct=ts.length?Math.round(done/ts.length*100):0;  
+  $('tk-bar').style.width=pct+'%';  
+  $('tk-lbl').textContent=pct+'% completado';  
+  const whos=['Todos',...names()];  
+  ts.forEach(t=>{  
+    const d=document.createElement('div'); d.className='task-item';  
+    const opts=whos.map(w=>`<option value="${esc(w)}" ${t.who===w?'selected':''}>${esc(w)}</option>`).join('');  
+    d.innerHTML=`  
+      <div class="task-row1">  
+        <input type="checkbox" class="task-check" ${t.done?'checked':''} onchange="window.TT(${t.id},this.checked)">  
+        <input type="text" class="task-inp${t.done?' done':''}" value="${esc(t.text)}" placeholder="Descripción de la tarea..." oninput="window.UT(${t.id},'text',this.value)">  
+        <button class="bdel" onclick="window.DT(${t.id})">×</button>  
+      </div>  
+      <div class="task-row2">  
+        <select class="isel tag-sel" onchange="window.UT(${t.id},'who',this.value)">${opts}</select>  
+      </div>`;  
+    el.appendChild(d);  
+  });  
+}  
+window.TT=(id,v)=>{ const t=(S.tasks||[]).find(x=>x.id===id); if(t){t.done=v;save();renderTasks();} };  
+window.UT=(id,f,v)=>{ const t=(S.tasks||[]).find(x=>x.id===id); if(t){t[f]=v;save();} };  
+window.DT=(id)=>{ S.tasks=S.tasks.filter(x=>x.id!==id); save();renderTasks(); };  
+window.addTask=()=>{ if(!S.tasks)S.tasks=[]; S.tasks.push({id:S.nTI++,text:'',done:false,who:'Todos'}); save();renderTasks(); setTimeout(()=>{const e=$('taskList').querySelectorAll('input[type=text]');e[e.length-1]?.focus();},60); };  
+  
+// MARKET  
+function renderMkt(){  
+  const el=$('mktList'); el.innerHTML='';  
+  let tot=0,dn=0;  
+  (S.mkt||[]).forEach(item=>{  
+    tot+=item.price||0; if(item.done)dn++;  
+    const d=document.createElement('div'); d.className='mkt-item';  
+    d.innerHTML=`  
+      <div class="mkt-row1">  
+        <input type="checkbox" class="mkt-check" ${item.done?'checked':''} onchange="window.TM(${item.id},this.checked)">  
+        <input type="text" class="${item.done?'mkt-bought':''}" value="${esc(item.name)}" placeholder="Producto..." oninput="window.UM(${item.id},'name',this.value)">  
+        <button class="bdel" onclick="window.DM(${item.id})">×</button>  
+      </div>  
+      <div class="mkt-row2">  
+        <input type="text" value="${esc(item.qty)}" placeholder="Cantidad (ej: 2 botes)" oninput="window.UM(${item.id},'qty',this.value)">  
+        <div class="price-box"><span>${S.currency||'€'}</span><input type="number" value="${item.price}" min="0" step="0.5" placeholder="0" oninput="window.UM(${item.id},'price',parseFloat(this.value)||0)"></div>  
+      </div>`;  
+    el.appendChild(d);  
+  });  
+  const pp=S.people?tot/S.people:0;  
+  $('mk-total').textContent=fmt(tot);  
+  $('mk-pp').textContent=fmtD(pp);  
+  $('mk-done').textContent=dn+'/'+(S.mkt||[]).length;  
+  splitGrid('mkt-split-grid',pp);  
+  renderResumen();  
+}  
+window.TM=(id,v)=>{ const m=(S.mkt||[]).find(x=>x.id===id); if(m){m.done=v;save();renderMkt();} };  
+window.UM=(id,f,v)=>{ const m=(S.mkt||[]).find(x=>x.id===id); if(m){m[f]=v;save();renderMkt();} };  
+window.DM=(id)=>{ S.mkt=S.mkt.filter(x=>x.id!==id); save();renderMkt(); };  
+window.addMkt=()=>{ if(!S.mkt)S.mkt=[]; S.mkt.push({id:S.nMI++,name:'',qty:'',price:0,done:false}); save();renderMkt(); setTimeout(()=>{const e=$('mktList').querySelectorAll('input[type=text]');e[e.length-2]?.focus();},60); };  
+  
+// RESUMEN  
+function renderResumen(){  
+  const fc=(S.food||[]).reduce((a,i)=>a+(i.price||0),0);  
+  const mc=(S.mkt||[]).reduce((a,i)=>a+(i.price||0),0);  
+  const tot=fc+mc;  
+  const pp=S.people?tot/S.people:0;  
+  $('r-comida').textContent=fmt(fc);  
+  $('r-mercado').textContent=fmt(mc);  
+  $('r-total').textContent=fmt(tot);  
+  splitGrid('resumen-split-grid',pp);  
+}  
+  
+// TABS  
+function activateTab(name){  
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('on'));  
+  $('panel-'+name).classList.add('on');  
+}  
+window.goTab=(name,btn)=>{ activateTab(name); document.querySelectorAll('.tab').forEach(b=>b.classList.remove('on')); btn.classList.add('on'); };  
+window.goTabM=(name,btn)=>{ activateTab(name); document.querySelectorAll('.bnav button').forEach(b=>b.classList.remove('on')); btn.classList.add('on'); };  
+  
+// SNOW  
+(()=>{  
+  const c=$('flakes'),fs=['❄','❅','❆','·'];  
+  for(let i=0;i<22;i++){  
+    const e=document.createElement('div'); e.className='flake'; e.textContent=fs[i%4];  
+    e.style.cssText=`left:${Math.random()*100}vw;animation-duration:${8+Math.random()*12}s;animation-delay:${Math.random()*14}s;font-size:${0.6+Math.random()}em;opacity:${.2+Math.random()*.5}`;  
+    c.appendChild(e);  
+  }  
+})();  
+</script>  
+  
+</body>  
+</html>  
